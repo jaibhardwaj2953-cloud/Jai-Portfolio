@@ -102,7 +102,7 @@ export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl }) 
           </div>
 
           {/* Master Action Link: Complete Google Drive Vault */}
-          <div className="shrink-0 flex items-center gap-3">
+          <div className="w-full lg:w-auto shrink-0 flex items-center">
             <motion.a
               id="ai-portfolio-main-drive-btn"
               href={driveUrl}
@@ -110,7 +110,7 @@ export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl }) 
               rel="noopener noreferrer"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="inline-flex items-center gap-2.5 px-5 py-3 rounded-xl bg-slate-900 dark:bg-slate-800 text-white font-medium text-xs sm:text-sm hover:bg-slate-800 dark:hover:bg-slate-700 transition-all shadow-2xs hover:shadow group"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-5 py-3 rounded-xl bg-slate-900 dark:bg-slate-800 text-white font-medium text-xs sm:text-sm hover:bg-slate-800 dark:hover:bg-slate-700 transition-all shadow-2xs hover:shadow group"
             >
               <HardDrive className="w-4 h-4 text-emerald-300 group-hover:scale-110 transition-transform" />
               <span className="font-semibold">Complete Google Drive Vault</span>
@@ -321,27 +321,27 @@ export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl }) 
         {/* 
           CENTRAL GOOGLE DRIVE AI VIDEO REPOSITORY VAULT 
         */}
-        <div className="p-7 sm:p-9 rounded-2xl bg-gradient-to-br from-white to-[#F8F9FA] dark:from-slate-900 dark:to-slate-950 border border-slate-200/90 dark:border-slate-800 shadow-2xs mb-12">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-slate-200/70 dark:border-slate-800">
-            <div className="flex items-start gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0 shadow-2xs">
-                <HardDrive className="w-7 h-7 text-emerald-800 dark:text-emerald-400" />
+        <div className="p-5 sm:p-8 rounded-2xl bg-gradient-to-br from-white to-[#F8F9FA] dark:from-slate-900 dark:to-slate-950 border border-slate-200/90 dark:border-slate-800 shadow-2xs mb-12">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 pb-6 border-b border-slate-200/70 dark:border-slate-800">
+            <div className="flex items-start gap-3.5 sm:gap-4 min-w-0 flex-1">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0 shadow-2xs mt-0.5 sm:mt-0">
+                <HardDrive className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-800 dark:text-emerald-400" />
               </div>
-              <div>
-                <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-emerald-800 dark:text-emerald-400 mb-1">
-                  <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
+              <div className="min-w-0 flex-1">
+                <div className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-emerald-800 dark:text-emerald-400 mb-1">
+                  <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse shrink-0" />
                   <span>Central Cloud Media Repository</span>
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
+                <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
                   Google Drive Master Video Archive
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-mono mt-1 truncate max-w-md sm:max-w-xl">
-                  {driveUrl}
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1.5 leading-relaxed">
+                  Direct cloud archive hosting 4K cinematic renders, high-bitrate video master exports, and complete production assets.
                 </p>
               </div>
             </div>
 
-            <div className="shrink-0 flex items-center gap-3">
+            <div className="w-full md:w-auto shrink-0 flex sm:justify-end">
               <motion.a
                 id="ai-portfolio-banner-redirect-btn"
                 href={driveUrl}
@@ -349,29 +349,29 @@ export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl }) 
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl bg-slate-900 dark:bg-slate-800 text-white text-xs sm:text-sm font-semibold hover:bg-slate-800 dark:hover:bg-slate-700 transition-all shadow-2xs shrink-0"
+                className="w-full md:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3 rounded-xl bg-slate-900 dark:bg-slate-800 text-white text-xs sm:text-sm font-semibold hover:bg-slate-800 dark:hover:bg-slate-700 transition-all shadow-2xs cursor-pointer text-center"
               >
                 <span>Launch Google Drive Vault</span>
-                <ExternalLink className="w-4 h-4" />
+                <ExternalLink className="w-4 h-4 shrink-0" />
               </motion.a>
             </div>
           </div>
 
           {/* Highlights */}
-          <div className="pt-6 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-            <div className="p-3 bg-white dark:bg-slate-800/80 rounded-xl border border-slate-200/80 dark:border-slate-700">
+          <div className="pt-6 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 text-xs">
+            <div className="p-3 bg-white dark:bg-slate-800/80 rounded-xl border border-slate-200/80 dark:border-slate-700 text-left">
               <div className="font-semibold text-slate-900 dark:text-white">4.7M+ Impressions</div>
               <div className="text-slate-500 dark:text-slate-400 text-[11px] mt-0.5">Performance Tested</div>
             </div>
-            <div className="p-3 bg-white dark:bg-slate-800/80 rounded-xl border border-slate-200/80 dark:border-slate-700">
+            <div className="p-3 bg-white dark:bg-slate-800/80 rounded-xl border border-slate-200/80 dark:border-slate-700 text-left">
               <div className="font-semibold text-slate-900 dark:text-white">4K Master Files</div>
               <div className="text-slate-500 dark:text-slate-400 text-[11px] mt-0.5">High-Definition Vault</div>
             </div>
-            <div className="p-3 bg-white dark:bg-slate-800/80 rounded-xl border border-slate-200/80 dark:border-slate-700">
+            <div className="p-3 bg-white dark:bg-slate-800/80 rounded-xl border border-slate-200/80 dark:border-slate-700 text-left">
               <div className="font-semibold text-slate-900 dark:text-white">3D Geospatial Maps</div>
               <div className="text-slate-500 dark:text-slate-400 text-[11px] mt-0.5">Tactical Overlays</div>
             </div>
-            <div className="p-3 bg-white dark:bg-slate-800/80 rounded-xl border border-slate-200/80 dark:border-slate-700">
+            <div className="p-3 bg-white dark:bg-slate-800/80 rounded-xl border border-slate-200/80 dark:border-slate-700 text-left">
               <div className="font-semibold text-slate-900 dark:text-white">Single Central Vault</div>
               <div className="text-slate-500 dark:text-slate-400 text-[11px] mt-0.5">Always Synchronized</div>
             </div>
