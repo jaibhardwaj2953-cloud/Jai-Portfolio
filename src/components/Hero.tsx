@@ -1,53 +1,31 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import {
   ExternalLink,
   Instagram,
   HardDrive,
   ArrowDown,
-  Camera,
   Sparkles,
   ShieldCheck,
   Phone,
   MessageCircle,
   Linkedin,
-  Edit3,
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { ScrollReveal } from './ScrollReveal';
 
 interface HeroProps {
   avatarUrl: string | null;
-  onAvatarUpload: (url: string) => void;
   driveUrl: string;
   instagramUrl: string;
   linkedinUrl?: string;
-  onOpenLinkedInModal?: () => void;
 }
 
 export const Hero: React.FC<HeroProps> = ({
   avatarUrl,
-  onAvatarUpload,
   driveUrl,
   instagramUrl,
   linkedinUrl = 'https://www.linkedin.com/in/jai-bhardwaj/',
-  onOpenLinkedInModal,
 }) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (uploadEvent) => {
-        const result = uploadEvent.target?.result as string;
-        if (result) {
-          onAvatarUpload(result);
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   return (
     <section
       id="profile"
@@ -116,16 +94,6 @@ export const Hero: React.FC<HeroProps> = ({
                     <span>LinkedIn Profile</span>
                     <ExternalLink className="w-3 h-3 opacity-70" />
                   </motion.a>
-                  {onOpenLinkedInModal && (
-                    <button
-                      type="button"
-                      onClick={onOpenLinkedInModal}
-                      className="p-1 rounded-full text-sky-700 dark:text-sky-400 hover:bg-sky-200/60 dark:hover:bg-sky-800/60 transition-colors"
-                      title="Update LinkedIn Profile URL"
-                    >
-                      <Edit3 className="w-3 h-3" />
-                    </button>
-                  )}
                 </div>
 
                 {/* Direct Line Badge */}
@@ -278,31 +246,7 @@ export const Hero: React.FC<HeroProps> = ({
                       </div>
                     </div>
                   )}
-
-                  {/* Upload / Replace Overlay Button */}
-                  <button
-                    id="hero-avatar-upload-trigger"
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="absolute inset-0 bg-slate-900/60 dark:bg-slate-950/70 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white cursor-pointer rounded-full backdrop-blur-[1px]"
-                    title="Click to upload/change your display picture"
-                  >
-                    <Camera className="w-6 h-6 mb-1 text-white" />
-                    <span className="text-xs font-medium px-2.5 py-1 bg-black/40 rounded-full">
-                      {avatarUrl ? 'Change Photo' : 'Upload Photo'}
-                    </span>
-                  </button>
                 </div>
-
-                {/* Hidden file input */}
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="hidden"
-                  aria-label="Upload profile portrait"
-                />
 
                 {/* Status pill beneath avatar */}
                 <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 text-xs font-medium border border-slate-200 dark:border-slate-700 shadow-xs">
@@ -311,21 +255,6 @@ export const Hero: React.FC<HeroProps> = ({
                 </div>
               </div>
             </ScrollReveal>
-
-            {/* Prompt indicator helper */}
-            <div className="mt-6 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-              <span>Portrait placeholder</span>
-              <span className="text-slate-300 dark:text-slate-700">•</span>
-              <motion.button
-                type="button"
-                whileTap={{ scale: 0.95 }}
-                onClick={() => fileInputRef.current?.click()}
-                className="text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-300 font-medium hover:underline inline-flex items-center gap-1"
-              >
-                <Camera className="w-3 h-3" />
-                <span>Upload Jai version 1.jpeg</span>
-              </motion.button>
-            </div>
           </div>
 
         </div>

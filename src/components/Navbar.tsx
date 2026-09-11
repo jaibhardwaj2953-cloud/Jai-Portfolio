@@ -22,7 +22,6 @@ interface NavbarProps {
   driveUrl: string;
   instagramUrl: string;
   linkedinUrl?: string;
-  onOpenLinkedInModal?: () => void;
   theme?: 'light' | 'dark';
   onToggleTheme?: () => void;
 }
@@ -31,7 +30,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   driveUrl,
   instagramUrl,
   linkedinUrl = 'https://www.linkedin.com/in/jai-bhardwaj/',
-  onOpenLinkedInModal,
   theme = 'light',
   onToggleTheme,
 }) => {

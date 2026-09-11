@@ -12,7 +12,6 @@ import {
   Check,
   ShieldCheck,
   Linkedin,
-  Edit3,
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { ThemeToggle } from './ThemeToggle';
@@ -22,7 +21,6 @@ interface FooterProps {
   driveUrl: string;
   instagramUrl: string;
   linkedinUrl?: string;
-  onOpenLinkedInModal?: () => void;
   theme?: 'light' | 'dark';
   onToggleTheme?: () => void;
 }
@@ -31,7 +29,6 @@ export const Footer: React.FC<FooterProps> = ({
   driveUrl,
   instagramUrl,
   linkedinUrl = 'https://www.linkedin.com/in/jai-bhardwaj/',
-  onOpenLinkedInModal,
   theme = 'light',
   onToggleTheme,
 }) => {
@@ -187,16 +184,6 @@ export const Footer: React.FC<FooterProps> = ({
                   <span>LinkedIn Profile</span>
                   <ExternalLink className="w-3 h-3 opacity-70" />
                 </motion.a>
-                {onOpenLinkedInModal && (
-                  <button
-                    type="button"
-                    onClick={onOpenLinkedInModal}
-                    className="p-1 rounded-full text-sky-700 dark:text-sky-400 hover:bg-sky-200/60 dark:hover:bg-sky-800/60 transition-colors"
-                    title="Change LinkedIn Profile Link"
-                  >
-                    <Edit3 className="w-3 h-3" />
-                  </button>
-                )}
               </div>
             </div>
           </div>
@@ -292,29 +279,17 @@ export const Footer: React.FC<FooterProps> = ({
                 </motion.a>
               </li>
               <li>
-                <div className="flex items-center justify-between gap-1 group">
-                  <motion.a
-                    id="footer-linkedin-link"
-                    whileHover={{ x: 2 }}
-                    href={linkedinUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-slate-700 dark:text-slate-300 hover:text-[#0A66C2] dark:hover:text-sky-400 transition-colors truncate"
-                  >
-                    <Linkedin className="w-4 h-4 text-[#0A66C2] dark:text-sky-400 shrink-0 fill-current" />
-                    <span className="truncate">LinkedIn: Jai Bhardwaj</span>
-                  </motion.a>
-                  {onOpenLinkedInModal && (
-                    <button
-                      type="button"
-                      onClick={onOpenLinkedInModal}
-                      className="p-1 rounded-md text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                      title="Update LinkedIn Profile URL"
-                    >
-                      <Edit3 className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                </div>
+                <motion.a
+                  id="footer-linkedin-link"
+                  whileHover={{ x: 2 }}
+                  href={linkedinUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-slate-700 dark:text-slate-300 hover:text-[#0A66C2] dark:hover:text-sky-400 transition-colors truncate"
+                >
+                  <Linkedin className="w-4 h-4 text-[#0A66C2] dark:text-sky-400 shrink-0 fill-current" />
+                  <span className="truncate">LinkedIn: Jai Bhardwaj</span>
+                </motion.a>
               </li>
               <li>
                 <motion.a
@@ -343,27 +318,6 @@ export const Footer: React.FC<FooterProps> = ({
                 </motion.a>
               </li>
             </ul>
-
-            {onOpenLinkedInModal && (
-              <div className="mt-4 p-3 rounded-xl bg-sky-50/70 dark:bg-sky-950/40 border border-sky-200/70 dark:border-sky-800/70">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5 min-w-0">
-                    <Linkedin className="w-3.5 h-3.5 text-[#0A66C2] dark:text-sky-400 fill-current shrink-0" />
-                    <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
-                      LinkedIn Link
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={onOpenLinkedInModal}
-                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#0A66C2] dark:text-sky-400 hover:underline shrink-0"
-                  >
-                    <Edit3 className="w-3 h-3" />
-                    <span>Set Profile URL</span>
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
 
         </div>

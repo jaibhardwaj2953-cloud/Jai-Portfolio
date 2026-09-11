@@ -13,6 +13,7 @@ import {
   Wrench,
   Shield,
   Zap,
+  Video,
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { ScrollReveal } from './ScrollReveal';
@@ -203,7 +204,7 @@ export const Profile: React.FC = () => {
                 </div>
               </motion.div>
 
-              {/* 2. Visual & Video AI: Midjourney, Kling AI */}
+              {/* 2. Visual & Video AI: Midjourney, Kling AI, Runway */}
               <motion.div
                 id="skill-card-visual-video-ai"
                 whileHover={{ y: -3 }}
@@ -242,11 +243,19 @@ export const Profile: React.FC = () => {
                       <Film className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                       <span>Kling AI</span>
                     </motion.div>
+
+                    <motion.div
+                      whileHover={{ scale: 1.03 }}
+                      className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-semibold text-xs sm:text-sm border border-slate-200 dark:border-slate-700 shadow-2xs hover:border-slate-400 dark:hover:border-slate-600 transition-colors"
+                    >
+                      <Video className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                      <span>Runway (Gen-3)</span>
+                    </motion.div>
                   </div>
                 </div>
 
                 <div className="mt-5 pt-3 border-t border-slate-200/60 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                  Ultra-realistic cinematic imagery, historical recreations, and fluid neural video synthesis.
+                  Ultra-realistic cinematic imagery, historical recreations, fluid neural video synthesis, and camera motion control.
                 </div>
               </motion.div>
 
