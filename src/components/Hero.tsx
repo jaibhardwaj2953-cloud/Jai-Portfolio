@@ -144,7 +144,16 @@ export const Hero: React.FC<HeroProps> = ({
                 id="hero-profile-statement"
                 className="text-base sm:text-lg lg:text-xl text-slate-600 dark:text-slate-300 leading-relaxed font-normal mb-8 max-w-xl mx-auto lg:mx-0"
               >
-                <strong className="font-semibold text-slate-900 dark:text-white">IndiaFutureAI trained creator</strong> with <strong className="font-semibold text-slate-900 dark:text-white">4+ years of experience</strong> blending AI-assisted research workflows, prompt engineering, and complex geopolitics/defence strategy to mentor future military officers and decode global strategic architectures.
+                <a
+                  href="https://www.indiafutureai.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-slate-900 dark:text-white underline decoration-emerald-500/60 decoration-2 underline-offset-4 hover:text-emerald-700 dark:hover:text-emerald-400 hover:decoration-emerald-600 transition-colors"
+                  title="Visit IndiaFutureAI (indiafutureai.com)"
+                >
+                  IndiaFutureAI trained creator
+                </a>{' '}
+                with <strong className="font-semibold text-slate-900 dark:text-white">4+ years of experience</strong> blending AI-assisted research workflows, prompt engineering, and complex geopolitics/defence strategy to mentor future military officers and decode global strategic architectures.
               </p>
             </ScrollReveal>
 

@@ -122,7 +122,17 @@ export const Credentials: React.FC = () => {
                 <Star className="w-4 h-4 fill-emerald-800 dark:fill-emerald-400" />
               </div>
               <div className="text-xs sm:text-sm text-slate-700 dark:text-slate-300">
-                <strong className="text-slate-900 dark:text-white">Demonstrated Multi-Tier Excellence:</strong> As an <strong className="text-slate-900 dark:text-white">IndiaFutureAI trained creator</strong> combined with consistently clearing CDS, AFCAT, CGCAT, and IB ACIO, Jai brings deep strategic insight and modern generative technology to defence aspirants.
+                <strong className="text-slate-900 dark:text-white">Demonstrated Multi-Tier Excellence:</strong> As an{' '}
+                <a
+                  href="https://www.indiafutureai.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-slate-900 dark:text-white underline decoration-emerald-500/60 decoration-2 underline-offset-2 hover:text-emerald-700 dark:hover:text-emerald-400 hover:decoration-emerald-600 transition-colors"
+                  title="Visit IndiaFutureAI (indiafutureai.com)"
+                >
+                  IndiaFutureAI trained creator
+                </a>{' '}
+                combined with consistently clearing CDS, AFCAT, CGCAT, and IB ACIO, Jai brings deep strategic insight and modern generative technology to defence aspirants.
               </div>
             </div>
             <div className="shrink-0 flex items-center gap-2">
