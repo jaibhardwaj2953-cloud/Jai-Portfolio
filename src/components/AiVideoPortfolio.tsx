@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import {
   HardDrive,
   ExternalLink,
@@ -10,13 +10,12 @@ import {
   Smartphone,
   Play,
   Maximize2,
-  RotateCcw,
-  X,
   Volume2,
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { ShowcaseVideoSlot } from '../types';
 import { INITIAL_SHOWCASE_SLOTS } from '../data/initialData';
+import { VideoModal } from './VideoModal';
 
 /**
  * Extracts the Google Drive file ID from a URL, link, or ID string
@@ -68,33 +67,22 @@ export function getDrivePosterUrl(fileId: string): { primary: string; fallback: 
 
 interface AiVideoPortfolioProps {
   driveUrl: string;
+  onOpenVideoPlayer?: (slot: ShowcaseVideoSlot) => void;
 }
 
-export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl }) => {
+export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl, onOpenVideoPlayer }) => {
   const slots: ShowcaseVideoSlot[] = INITIAL_SHOWCASE_SLOTS;
 
-  // Active in-card player slot ID
-  const [activeInlineSlot, setActiveInlineSlot] = useState<string | null>(null);
+  // Local state for modal popup if parent doesn't provide onOpenVideoPlayer
+  const [internalModalSlot, setInternalModalSlot] = useState<ShowcaseVideoSlot | null>(null);
 
-  // Active theater modal slot for full distraction-free playback
-  const [theaterSlot, setTheaterSlot] = useState<ShowcaseVideoSlot | null>(null);
-
-  // Fallback to Google Drive iframe for a slot if native stream encounters an error
-  const [useIframeFallback, setUseIframeFallback] = useState<Record<string, boolean>>({});
-
-  // Ref to active inline video elements
-  const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
-
-  // Close theater modal on Escape key
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setTheaterSlot(null);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  const handleOpenPlayer = (slot: ShowcaseVideoSlot) => {
+    if (onOpenVideoPlayer) {
+      onOpenVideoPlayer(slot);
+    } else {
+      setInternalModalSlot(slot);
+    }
+  };
 
   const getSlotIcon = (id: string, inDarkContext = false) => {
     switch (id) {
@@ -107,27 +95,6 @@ export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl }) 
       default:
         return <Video className={`w-4 h-4 ${inDarkContext ? 'text-emerald-400' : 'text-slate-600 dark:text-slate-400'}`} />;
     }
-  };
-
-  const handleStartInlinePlay = (slotId: string) => {
-    setActiveInlineSlot(slotId);
-    // Auto-trigger video play when activated
-    setTimeout(() => {
-      const vid = videoRefs.current[slotId];
-      if (vid) {
-        vid.play().catch(() => {
-          // If browser policy requires user gesture on muted video
-        });
-      }
-    }, 50);
-  };
-
-  const handleStopInlinePlay = (slotId: string) => {
-    const vid = videoRefs.current[slotId];
-    if (vid) {
-      vid.pause();
-    }
-    setActiveInlineSlot(null);
   };
 
   return (
@@ -178,19 +145,16 @@ export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl }) 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16 items-start">
           {slots.map((slot) => {
             const fileId = extractDriveFileId(slot.googleDriveUrl || slot.customUrl);
-            const gdriveEmbedUrl = parseGoogleDriveEmbedUrl(slot.googleDriveUrl || slot.customUrl);
             const isVertical916 = slot.aspectRatio === '9:16';
             const driveTargetUrl = slot.googleDriveUrl || slot.customUrl || driveUrl;
-            const isPlayingInline = activeInlineSlot === slot.id;
             const posterUrls = fileId ? getDrivePosterUrl(fileId) : null;
             const effectivePoster = posterUrls?.primary || slot.posterUrl;
-            const isUsingIframe = useIframeFallback[slot.id];
 
             return (
               <div
                 key={slot.id}
                 id={`showcase-slot-${slot.id}`}
-                className="flex flex-col justify-between rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 transition-all duration-200 shadow-2xs hover:shadow-md overflow-hidden"
+                className="flex flex-col justify-between rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 transition-all duration-200 shadow-2xs hover:shadow-md overflow-hidden group"
               >
                 {/* Slot Header */}
                 <div className="p-5 sm:p-6 pb-4">
@@ -238,7 +202,7 @@ export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl }) 
                 {/* Video Player Display Container */}
                 <div className="px-5 sm:px-6 pb-5 flex-1 flex flex-col justify-between">
                   <div className="space-y-3">
-                    {/* VIDEO SURFACE */}
+                    {/* VIDEO SURFACE - CLICKING OPENS FULL-SCREEN / CENTERED MODAL */}
                     <div
                       className={`relative rounded-xl overflow-hidden bg-slate-950 shadow-md border border-slate-800/80 transition-all ${
                         isVertical916
@@ -246,200 +210,118 @@ export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl }) 
                           : 'aspect-video w-full'
                       }`}
                     >
-                      {isPlayingInline ? (
-                        /* ACTIVE PLAYER (WITHOUT REDUNDANT POSTER ATTRIBUTE TO PREVENT MOBILE BROKEN IMAGE OVERLAY) */
-                        <div className="relative w-full h-full flex items-center justify-center bg-black">
-                          {isUsingIframe && gdriveEmbedUrl ? (
-                            /* IFRAME FALLBACK PLAYER */
-                            <iframe
-                              id={`gdrive-iframe-${slot.id}`}
-                              src={gdriveEmbedUrl}
-                              title={`${slot.categoryTitle} - Direct Playback`}
-                              className="w-full h-full border-0"
-                              allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-                              allowFullScreen
-                            />
-                          ) : fileId ? (
-                            /* HIGH-PERFORMANCE NATIVE HTML5 VIDEO STREAM */
-                            <video
-                              ref={(el) => {
-                                videoRefs.current[slot.id] = el;
-                              }}
-                              id={`native-video-${slot.id}`}
-                              controls
-                              playsInline
-                              autoPlay
-                              preload="auto"
-                              className="w-full h-full object-contain bg-black"
-                              onError={() => {
-                                // Fallback to Google Drive embed if native stream is restricted
-                                setUseIframeFallback((prev) => ({ ...prev, [slot.id]: true }));
-                              }}
-                            >
-                              <source src={`/api/video/${fileId}`} type="video/mp4" />
-                              <source
-                                src={`https://drive.usercontent.google.com/download?id=${fileId}&export=download`}
-                                type="video/mp4"
-                              />
-                              Your browser does not support HTML5 video streaming.
-                            </video>
-                          ) : (
-                            <div className="text-center p-4 text-xs text-slate-400">
-                              No video source available
-                            </div>
-                          )}
+                      <div
+                        id={`preview-screen-${slot.id}`}
+                        onClick={() => handleOpenPlayer(slot)}
+                        className="relative w-full h-full cursor-pointer overflow-hidden flex flex-col justify-between select-none group/poster"
+                        title="Click to watch video in full player"
+                      >
+                        {/* Poster Image */}
+                        {effectivePoster ? (
+                          <img
+                            src={effectivePoster}
+                            alt={slot.tagline || slot.categoryTitle}
+                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover/poster:scale-105"
+                            referrerPolicy="no-referrer"
+                            onError={(e) => {
+                              const target = e.currentTarget;
+                              if (posterUrls && !target.src.includes('thumbnail')) {
+                                target.src = posterUrls.direct;
+                              }
+                            }}
+                          />
+                        ) : (
+                          <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900" />
+                        )}
 
-                          {/* Quick In-Player Overlay Controls */}
-                          <div className="absolute top-2 right-2 z-20 flex items-center gap-1.5 opacity-90 hover:opacity-100 transition-opacity">
-                            <button
-                              type="button"
-                              onClick={() => setTheaterSlot(slot)}
-                              title="Expand to Theater View"
-                              className="p-1.5 rounded-lg bg-black/75 hover:bg-black text-white text-xs backdrop-blur-xs border border-white/20 shadow-xs cursor-pointer transition-all"
-                            >
-                              <Maximize2 className="w-3.5 h-3.5" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleStopInlinePlay(slot.id)}
-                              title="Close Player & Return to Poster"
-                              className="p-1.5 rounded-lg bg-black/75 hover:bg-black text-white text-xs backdrop-blur-xs border border-white/20 shadow-xs cursor-pointer transition-all"
-                            >
-                              <X className="w-3.5 h-3.5" />
-                            </button>
+                        {/* Cinematic Gradient Vignette Overlays */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/60 group-hover/poster:via-black/20 transition-all duration-300" />
+
+                        {/* Top Poster Badges */}
+                        <div className="relative z-10 p-3 sm:p-3.5 flex items-center justify-between gap-2">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/65 backdrop-blur-xs text-white text-[11px] font-semibold border border-white/15 shadow-xs">
+                            {isVertical916 ? (
+                              <>
+                                <Smartphone className="w-3 h-3 text-purple-400" />
+                                <span>9:16 Vertical Reel</span>
+                              </>
+                            ) : (
+                              <>
+                                <Film className="w-3 h-3 text-emerald-400" />
+                                <span>16:9 Widescreen 4K</span>
+                              </>
+                            )}
+                          </span>
+
+                          {/* Quick Launch Icon */}
+                          <span
+                            title="Watch in popup player"
+                            className="p-1.5 rounded-full bg-black/65 group-hover/poster:bg-black/90 backdrop-blur-xs text-white/90 group-hover/poster:text-white border border-white/15 transition-all shadow-xs"
+                          >
+                            <Maximize2 className="w-3.5 h-3.5" />
+                          </span>
+                        </div>
+
+                        {/* Center Tactile Play Button Interface */}
+                        <div className="relative z-10 flex flex-col items-center justify-center p-4">
+                          <motion.div
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.94 }}
+                            className="relative flex items-center justify-center"
+                          >
+                            {/* Glowing pulse ring */}
+                            <div className="absolute w-16 h-16 rounded-full bg-emerald-500/30 dark:bg-emerald-400/25 animate-ping opacity-60 pointer-events-none" />
+
+                            {/* Main Button Surface */}
+                            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-emerald-700/95 dark:bg-emerald-600 text-white flex items-center justify-center shadow-lg shadow-emerald-950/50 border border-emerald-400/40 group-hover/poster:bg-emerald-600 transition-colors">
+                              <Play className="w-6 h-6 sm:w-7 sm:h-7 text-white fill-white translate-x-0.5" />
+                            </div>
+                          </motion.div>
+
+                          {/* Label */}
+                          <div className="mt-3 inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-black/75 backdrop-blur-xs text-white text-xs font-semibold border border-white/20 shadow-xs group-hover/poster:bg-emerald-950/80 group-hover/poster:border-emerald-400/30 transition-all">
+                            <span>Click to Watch Video</span>
                           </div>
                         </div>
-                      ) : (
-                        /* CRISP PREVIEW POSTER WITH TACTILE PLAY BUTTON */
-                        <div
-                          id={`preview-screen-${slot.id}`}
-                          onClick={() => handleStartInlinePlay(slot.id)}
-                          className="relative w-full h-full group cursor-pointer overflow-hidden flex flex-col justify-between select-none"
-                        >
-                          {/* Poster Image */}
-                          {effectivePoster ? (
-                            <img
-                              src={effectivePoster}
-                              alt={slot.tagline || slot.categoryTitle}
-                              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                              referrerPolicy="no-referrer"
-                              onError={(e) => {
-                                const target = e.currentTarget;
-                                if (posterUrls) {
-                                  if (!target.src.includes('thumbnail')) {
-                                    target.src = posterUrls.direct;
-                                  }
-                                }
-                              }}
-                            />
-                          ) : (
-                            <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900" />
-                          )}
 
-                          {/* Cinematic Gradient Vignette Overlays */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/60 group-hover:via-black/20 transition-all duration-300" />
-
-                          {/* Top Poster Badges */}
-                          <div className="relative z-10 p-3 sm:p-3.5 flex items-center justify-between gap-2">
-                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/65 backdrop-blur-xs text-white text-[11px] font-semibold border border-white/15 shadow-xs">
-                              {isVertical916 ? (
-                                <>
-                                  <Smartphone className="w-3 h-3 text-purple-400" />
-                                  <span>9:16 Vertical Reel</span>
-                                </>
-                              ) : (
-                                <>
-                                  <Film className="w-3 h-3 text-emerald-400" />
-                                  <span>16:9 Widescreen 4K</span>
-                                </>
-                              )}
+                        {/* Bottom Info Strip */}
+                        <div className="relative z-10 p-3 sm:p-3.5 flex items-center justify-between text-white/90 text-xs">
+                          <div className="truncate max-w-[70%]">
+                            <span className="font-semibold block truncate drop-shadow-xs">
+                              {slot.tagline}
                             </span>
-
-                            {/* Theater Quick Launch Icon */}
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setTheaterSlot(slot);
-                              }}
-                              title="Launch Theater Mode"
-                              className="p-1.5 rounded-full bg-black/65 hover:bg-black/90 backdrop-blur-xs text-white/90 hover:text-white border border-white/15 transition-all shadow-xs cursor-pointer"
-                            >
-                              <Maximize2 className="w-3.5 h-3.5" />
-                            </button>
                           </div>
-
-                          {/* Center Tactile Play Button Interface */}
-                          <div className="relative z-10 flex flex-col items-center justify-center p-4">
-                            <motion.div
-                              whileHover={{ scale: 1.08 }}
-                              whileTap={{ scale: 0.94 }}
-                              className="relative flex items-center justify-center"
-                            >
-                              {/* Glowing pulse ring */}
-                              <div className="absolute w-16 h-16 rounded-full bg-emerald-500/30 dark:bg-emerald-400/25 animate-ping opacity-60 pointer-events-none" />
-
-                              {/* Main Button Surface */}
-                              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-emerald-700/95 dark:bg-emerald-600 text-white flex items-center justify-center shadow-lg shadow-emerald-950/50 border border-emerald-400/40 group-hover:bg-emerald-600 transition-colors">
-                                <Play className="w-6 h-6 sm:w-7 sm:h-7 text-white fill-white translate-x-0.5" />
-                              </div>
-                            </motion.div>
-
-                            {/* Label */}
-                            <div className="mt-3 inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-black/75 backdrop-blur-xs text-white text-xs font-semibold border border-white/20 shadow-xs">
-                              <span>Click to Play Video</span>
-                            </div>
-                          </div>
-
-                          {/* Bottom Info Strip */}
-                          <div className="relative z-10 p-3 sm:p-3.5 flex items-center justify-between text-white/90 text-xs">
-                            <div className="truncate max-w-[70%]">
-                              <span className="font-semibold block truncate drop-shadow-xs">
-                                {slot.tagline}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1.5 text-[11px] font-mono text-slate-300 shrink-0 bg-black/50 px-2 py-0.5 rounded-md backdrop-blur-2xs border border-white/10">
-                              <Volume2 className="w-3 h-3 text-emerald-400" />
-                              <span>{slot.duration || 'HD Master'}</span>
-                            </div>
+                          <div className="flex items-center gap-1.5 text-[11px] font-mono text-slate-300 shrink-0 bg-black/50 px-2 py-0.5 rounded-md backdrop-blur-2xs border border-white/10">
+                            <Volume2 className="w-3 h-3 text-emerald-400" />
+                            <span>{slot.duration || 'HD Master'}</span>
                           </div>
                         </div>
-                      )}
+                      </div>
                     </div>
 
-                    {/* INTERACTIVE VIDEO CONTROL BAR */}
+                    {/* INTERACTIVE VIDEO ACTION BAR */}
                     <div className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-[#FAF9F6] dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs">
-                      {/* Left Toggle: Play / Stop Button */}
-                      {isPlayingInline ? (
-                        <button
-                          type="button"
-                          onClick={() => handleStopInlinePlay(slot.id)}
-                          className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-100 font-semibold transition-colors cursor-pointer text-xs"
-                        >
-                          <RotateCcw className="w-3.5 h-3.5" />
-                          <span>Close Player</span>
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => handleStartInlinePlay(slot.id)}
-                          className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-lg bg-emerald-800 hover:bg-emerald-900 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white font-semibold transition-colors shadow-2xs cursor-pointer text-xs"
-                        >
-                          <Play className="w-3.5 h-3.5 fill-current" />
-                          <span>Play Video</span>
-                        </button>
-                      )}
+                      {/* Left: Play Video Button (Opens Modal) */}
+                      <button
+                        id={`play-video-btn-${slot.id}`}
+                        type="button"
+                        onClick={() => handleOpenPlayer(slot)}
+                        className="inline-flex items-center gap-1.5 py-1.5 px-3.5 rounded-lg bg-emerald-800 hover:bg-emerald-900 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white font-semibold transition-colors shadow-2xs cursor-pointer text-xs"
+                      >
+                        <Play className="w-3.5 h-3.5 fill-current" />
+                        <span>Play Video</span>
+                      </button>
 
-                      {/* Right Actions: Theater View & Direct Drive Vault */}
+                      {/* Right Actions: Popup Player & Direct Drive HD Vault */}
                       <div className="flex items-center gap-1.5">
                         <button
                           type="button"
-                          onClick={() => setTheaterSlot(slot)}
+                          onClick={() => handleOpenPlayer(slot)}
                           className="inline-flex items-center gap-1 py-1.5 px-2.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors shadow-2xs font-medium text-[11px] cursor-pointer"
-                          title="Open full theater lightbox"
+                          title="Open full video player popup"
                         >
                           <Maximize2 className="w-3.5 h-3.5 text-slate-500 dark:text-slate-300" />
-                          <span>Theater</span>
+                          <span>Popup</span>
                         </button>
 
                         <a
@@ -556,140 +438,11 @@ export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl }) 
         </div>
       </div>
 
-      {/* 
-        CINEMA THEATER / LIGHTBOX MODAL:
-        Provides an expansive, clutter-free viewing experience optimized for each aspect ratio
-      */}
-      <AnimatePresence>
-        {theaterSlot && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setTheaterSlot(null)}
-              className="fixed inset-0 bg-black/90 backdrop-blur-md"
-            />
-
-            {/* Modal Dialog */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className={`relative z-10 w-full flex flex-col bg-slate-950 rounded-2xl sm:rounded-3xl border border-slate-800 shadow-2xl overflow-hidden my-auto ${
-                theaterSlot.aspectRatio === '9:16' ? 'max-w-md' : 'max-w-5xl'
-              }`}
-            >
-              {/* Modal Header */}
-              <div className="flex items-center justify-between gap-3 px-5 py-3.5 border-b border-slate-800 bg-slate-900/90 text-white">
-                <div className="flex items-center gap-2.5 truncate">
-                  <span className="p-1.5 rounded-md bg-slate-800 border border-slate-700">
-                    {getSlotIcon(theaterSlot.id, true)}
-                  </span>
-                  <div className="truncate">
-                    <h3 className="text-sm font-bold text-white truncate">
-                      {theaterSlot.tagline || theaterSlot.categoryTitle}
-                    </h3>
-                    <span className="text-[11px] text-emerald-400 font-medium">
-                      {theaterSlot.badgeLabel} •{' '}
-                      {theaterSlot.aspectRatio === '9:16'
-                        ? '9:16 Vertical Reel'
-                        : '16:9 Cinema 4K'}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 shrink-0">
-                  <a
-                    href={theaterSlot.googleDriveUrl || driveUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-800 hover:bg-emerald-700 text-white text-xs font-semibold transition-colors shadow-2xs"
-                  >
-                    <span>Open in Drive</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
-
-                  <button
-                    type="button"
-                    onClick={() => setTheaterSlot(null)}
-                    className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer"
-                    title="Close Theater (Esc)"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Modal Video Player Container - NO POSTER ATTRIBUTE to avoid Android Chrome broken image overlay */}
-              <div
-                className={`w-full bg-black relative flex items-center justify-center ${
-                  theaterSlot.aspectRatio === '9:16'
-                    ? 'h-[75vh] max-h-[680px] aspect-[9/16] mx-auto'
-                    : 'w-full aspect-video'
-                }`}
-              >
-                {extractDriveFileId(theaterSlot.googleDriveUrl || theaterSlot.customUrl) ? (
-                  <video
-                    controls
-                    playsInline
-                    autoPlay
-                    preload="auto"
-                    className="w-full h-full object-contain bg-black"
-                  >
-                    <source
-                      src={`/api/video/${extractDriveFileId(
-                        theaterSlot.googleDriveUrl || theaterSlot.customUrl
-                      )}`}
-                      type="video/mp4"
-                    />
-                    <source
-                      src={`https://drive.usercontent.google.com/download?id=${extractDriveFileId(
-                        theaterSlot.googleDriveUrl || theaterSlot.customUrl
-                      )}&export=download`}
-                      type="video/mp4"
-                    />
-                    Your browser does not support HTML5 video streaming.
-                  </video>
-                ) : parseGoogleDriveEmbedUrl(
-                    theaterSlot.googleDriveUrl || theaterSlot.customUrl
-                  ) ? (
-                  <iframe
-                    src={parseGoogleDriveEmbedUrl(
-                      theaterSlot.googleDriveUrl || theaterSlot.customUrl
-                    )!}
-                    title={theaterSlot.categoryTitle}
-                    className="w-full h-full border-0"
-                    allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
-                    allowFullScreen
-                  />
-                ) : (
-                  <div className="p-8 text-center text-slate-400 text-sm">
-                    Video stream currently unavailable.
-                  </div>
-                )}
-              </div>
-
-              {/* Modal Footer Description */}
-              <div className="p-4 sm:p-5 border-t border-slate-800 bg-slate-900/60 text-slate-300 text-xs sm:text-sm space-y-2">
-                <p className="leading-relaxed">{theaterSlot.description}</p>
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {theaterSlot.tags.map((tag, idx) => (
-                    <span
-                      key={idx}
-                      className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px] font-medium border border-slate-700"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      {/* Fallback Video Player Modal (if triggered internally) */}
+      <VideoModal
+        slot={internalModalSlot}
+        onClose={() => setInternalModalSlot(null)}
+      />
     </section>
   );
 };

@@ -14,6 +14,88 @@ async function startServer() {
     res.json({ status: 'ok' });
   });
 
+  // Dedicated Same-Origin Embed Player Page for <iframe> integration
+  // Plays smoothly inside iframes without third-party cookie restrictions or Google Drive quota blocks
+  app.get('/embed/:fileId', (req, res) => {
+    const { fileId } = req.params;
+
+    if (!fileId || !/^[a-zA-Z0-9_-]{20,}$/.test(fileId)) {
+      res.status(400).send('Invalid Google Drive file ID');
+      return;
+    }
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Video Player</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    .player-wrap { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #000; }
+    video { width: 100%; height: 100%; object-fit: contain; background: #000; outline: none; }
+    .unmute-btn { position: absolute; top: 16px; left: 50%; transform: translateX(-50%); z-index: 50; background: #059669; color: #fff; border: 1px solid rgba(255,255,255,0.25); padding: 8px 18px; border-radius: 9999px; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.6); display: none; align-items: center; gap: 8px; transition: all 0.2s; -webkit-tap-highlight-color: transparent; }
+    .unmute-btn:hover { background: #047857; }
+    .error-card { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; background: #090d16; color: #fff; text-align: center; padding: 24px; z-index: 40; }
+    .drive-link { margin-top: 14px; background: #2563eb; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(37,99,235,0.4); }
+  </style>
+</head>
+<body>
+  <div class="player-wrap">
+    <video
+      id="v"
+      controls
+      autoplay
+      playsinline
+      preload="auto"
+      poster="/api/poster/${fileId}"
+      src="/api/video/${fileId}"
+    >
+      <source src="/api/video/${fileId}" type="video/mp4" />
+      Your browser does not support HTML5 video streaming.
+    </video>
+    <button id="unmute" class="unmute-btn" onclick="toggleUnmute()">
+      <span>🔊 Tap to Unmute Video</span>
+    </button>
+    <div id="err" class="error-card">
+      <p style="font-size: 16px; font-weight: 700; margin-bottom: 8px;">Playback Connection Issue</p>
+      <p style="font-size: 13px; color: #94a3b8; margin-bottom: 12px; max-width: 320px;">The video stream could not be loaded directly. You can view the master file in Google Drive.</p>
+      <a class="drive-link" href="https://drive.google.com/file/d/${fileId}/view" target="_blank" rel="noopener">Open Master in Google Drive ↗</a>
+    </div>
+  </div>
+  <script>
+    const vid = document.getElementById('v');
+    const btn = document.getElementById('unmute');
+    const err = document.getElementById('err');
+
+    function toggleUnmute() {
+      vid.muted = false;
+      btn.style.display = 'none';
+    }
+
+    vid.play().catch(function() {
+      vid.muted = true;
+      vid.play().then(function() {
+        btn.style.display = 'inline-flex';
+      }).catch(function(e) {
+        console.warn('Autoplay failed:', e);
+      });
+    });
+
+    vid.addEventListener('error', function() {
+      console.warn('Stream load error:', vid.error);
+      err.style.display = 'flex';
+    });
+  </script>
+</body>
+</html>`;
+
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.send(html);
+  });
+
   // Streaming Proxy for Google Drive Video Master Files
   // Eliminates cross-origin iframe sandboxing, rate-limits, and third-party cookie blocks
   app.get('/api/video/:fileId', (req, res) => {
@@ -60,12 +142,30 @@ async function startServer() {
           res.setHeader('Content-Length', chunksize);
 
           const stream = fs.createReadStream(localVideoPath, { start, end });
+          req.on('close', () => {
+            stream.destroy();
+          });
+          stream.on('error', (err) => {
+            console.error(`Stream error for local file ${fileId}:`, err);
+            if (!res.headersSent) {
+              res.status(500).send('Video stream error');
+            }
+          });
           stream.pipe(res);
           return;
         } else {
           res.status(200);
           res.setHeader('Content-Length', fileSize);
           const stream = fs.createReadStream(localVideoPath);
+          req.on('close', () => {
+            stream.destroy();
+          });
+          stream.on('error', (err) => {
+            console.error(`Stream error for local file ${fileId}:`, err);
+            if (!res.headersSent) {
+              res.status(500).send('Video stream error');
+            }
+          });
           stream.pipe(res);
           return;
         }
@@ -170,6 +270,15 @@ async function startServer() {
 
     if (!fileId || !/^[a-zA-Z0-9_-]{20,}$/.test(fileId)) {
       res.status(400).send('Invalid Google Drive file ID');
+      return;
+    }
+
+    const localPosterPath = path.join(process.cwd(), 'cache', 'posters', `${fileId}.jpg`);
+    if (fs.existsSync(localPosterPath)) {
+      res.setHeader('Content-Type', 'image/jpeg');
+      res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400');
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      fs.createReadStream(localPosterPath).pipe(res);
       return;
     }
 
