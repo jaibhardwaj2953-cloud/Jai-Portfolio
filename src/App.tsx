@@ -7,11 +7,10 @@ import { ResearchSection } from './components/ResearchSection';
 import { AiVideoPortfolio } from './components/AiVideoPortfolio';
 import { Credentials } from './components/Credentials';
 import { DocumentModal } from './components/DocumentModal';
-import { VideoModal } from './components/VideoModal';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { Footer } from './components/Footer';
 import { INITIAL_RESEARCH_PAPERS } from './data/initialData';
-import { ResearchPaper, ShowcaseVideoSlot } from './types';
+import { ResearchPaper } from './types';
 
 const DRIVE_URL = 'https://drive.google.com/drive/folders/131fmioulZcwEphjt21zaJiTPZ5vcoawi';
 const INSTAGRAM_URL = 'https://www.instagram.com/defence.rev/';
@@ -24,7 +23,6 @@ export default function App() {
   });
 
   const [selectedPaperForReader, setSelectedPaperForReader] = useState<ResearchPaper | null>(null);
-  const [selectedVideoForPlayer, setSelectedVideoForPlayer] = useState<ShowcaseVideoSlot | null>(null);
 
   // Sync dark class on document root
   useEffect(() => {
@@ -65,10 +63,9 @@ export default function App() {
         {/* 1. Profile & Focus (including Skills & Expertise with Generative AI stack) */}
         <Profile />
 
-        {/* 2. Top Work Video Showcases (Highlighted on top right after Profile) */}
+        {/* 2. Top Work Video Showcases (Static Thumbnails linking directly to Google Drive) */}
         <AiVideoPortfolio
           driveUrl={DRIVE_URL}
-          onOpenVideoPlayer={(slot) => setSelectedVideoForPlayer(slot)}
         />
 
         {/* 3. Selected Research */}
@@ -83,12 +80,6 @@ export default function App() {
         {/* 5. Professional Experience */}
         <Experience />
       </main>
-
-      {/* Video Player Modal (Full-Screen / Centered Google Drive /preview Player) */}
-      <VideoModal
-        slot={selectedVideoForPlayer}
-        onClose={() => setSelectedVideoForPlayer(null)}
-      />
 
       {/* Document Reader / Modal */}
       <DocumentModal

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   HardDrive,
   ExternalLink,
@@ -9,13 +9,10 @@ import {
   Megaphone,
   Smartphone,
   Play,
-  Maximize2,
-  Volume2,
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { ShowcaseVideoSlot } from '../types';
 import { INITIAL_SHOWCASE_SLOTS } from '../data/initialData';
-import { VideoModal } from './VideoModal';
 
 /**
  * Extracts the Google Drive file ID from a URL, link, or ID string
@@ -39,18 +36,16 @@ export function extractDriveFileId(urlOrInput?: string): string | null {
 }
 
 /**
- * Extracts the embeddable Google Drive preview URL
+ * Returns direct Google Drive video viewing link (opens in new tab)
  */
-export function parseGoogleDriveEmbedUrl(urlOrInput?: string): string | null {
-  if (!urlOrInput) return null;
-  const fileId = extractDriveFileId(urlOrInput);
+export function getDriveDirectViewUrl(slot: ShowcaseVideoSlot, fallbackDriveUrl: string): string {
+  const url = slot.googleDriveUrl || slot.customUrl;
+  if (!url) return fallbackDriveUrl;
+  const fileId = extractDriveFileId(url);
   if (fileId) {
-    return `https://drive.google.com/file/d/${fileId}/preview`;
+    return `https://drive.google.com/file/d/${fileId}/view`;
   }
-  if (urlOrInput.includes('drive.google.com') && urlOrInput.includes('/preview')) {
-    return urlOrInput;
-  }
-  return null;
+  return url;
 }
 
 /**
@@ -67,22 +62,10 @@ export function getDrivePosterUrl(fileId: string): { primary: string; fallback: 
 
 interface AiVideoPortfolioProps {
   driveUrl: string;
-  onOpenVideoPlayer?: (slot: ShowcaseVideoSlot) => void;
 }
 
-export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl, onOpenVideoPlayer }) => {
+export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl }) => {
   const slots: ShowcaseVideoSlot[] = INITIAL_SHOWCASE_SLOTS;
-
-  // Local state for modal popup if parent doesn't provide onOpenVideoPlayer
-  const [internalModalSlot, setInternalModalSlot] = useState<ShowcaseVideoSlot | null>(null);
-
-  const handleOpenPlayer = (slot: ShowcaseVideoSlot) => {
-    if (onOpenVideoPlayer) {
-      onOpenVideoPlayer(slot);
-    } else {
-      setInternalModalSlot(slot);
-    }
-  };
 
   const getSlotIcon = (id: string, inDarkContext = false) => {
     switch (id) {
@@ -114,7 +97,7 @@ export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl, on
               Top Work Video Showcases
             </h2>
             <p className="mt-3 text-base text-slate-600 dark:text-slate-300 leading-relaxed">
-              Curated high-definition cinematic productions and strategic defense video analyses. Featuring smooth, immediate video playback across widescreen <strong>AI Cinematic (16:9)</strong> and vertical <strong>Defense &amp; Commercial Reels (9:16)</strong>.
+              Curated high-definition cinematic productions and strategic defense video analyses. Featuring widescreen <strong>AI Cinematic (16:9)</strong> and vertical <strong>Defense &amp; Commercial Reels (9:16)</strong> with direct high-definition access in Google Drive.
             </p>
           </div>
 
@@ -141,12 +124,13 @@ export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl, on
           1. AI Cinematic (16:9 Landscape)
           2. Defense & Geopolitics (9:16 Vertical Reel)
           3. Commercial & AI Ad Video (9:16 Vertical Reel)
+          All cards display clean static preview thumbnails and direct links to Google Drive
         */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16 items-start">
           {slots.map((slot) => {
             const fileId = extractDriveFileId(slot.googleDriveUrl || slot.customUrl);
             const isVertical916 = slot.aspectRatio === '9:16';
-            const driveTargetUrl = slot.googleDriveUrl || slot.customUrl || driveUrl;
+            const driveTargetUrl = getDriveDirectViewUrl(slot, driveUrl);
             const posterUrls = fileId ? getDrivePosterUrl(fileId) : null;
             const effectivePoster = posterUrls?.primary || slot.posterUrl;
 
@@ -199,10 +183,10 @@ export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl, on
                   </p>
                 </div>
 
-                {/* Video Player Display Container */}
+                {/* Video Static Preview Display Container */}
                 <div className="px-5 sm:px-6 pb-5 flex-1 flex flex-col justify-between">
                   <div className="space-y-3">
-                    {/* VIDEO SURFACE - CLICKING OPENS FULL-SCREEN / CENTERED MODAL */}
+                    {/* STATIC PREVIEW THUMBNAIL - CLICKING REDIRECTS DIRECTLY TO GOOGLE DRIVE IN NEW TAB */}
                     <div
                       className={`relative rounded-xl overflow-hidden bg-slate-950 shadow-md border border-slate-800/80 transition-all ${
                         isVertical916
@@ -210,13 +194,15 @@ export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl, on
                           : 'aspect-video w-full'
                       }`}
                     >
-                      <div
+                      <a
                         id={`preview-screen-${slot.id}`}
-                        onClick={() => handleOpenPlayer(slot)}
-                        className="relative w-full h-full cursor-pointer overflow-hidden flex flex-col justify-between select-none group/poster"
-                        title="Click to watch video in full player"
+                        href={driveTargetUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="relative w-full h-full flex flex-col justify-between p-3 sm:p-3.5 overflow-hidden select-none group/poster cursor-pointer"
+                        title={`Watch "${slot.categoryTitle}" (opens in a new tab)`}
                       >
-                        {/* Poster Image */}
+                        {/* Static Preview Image (Thumbnail) */}
                         {effectivePoster ? (
                           <img
                             src={effectivePoster}
@@ -235,10 +221,10 @@ export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl, on
                         )}
 
                         {/* Cinematic Gradient Vignette Overlays */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/60 group-hover/poster:via-black/20 transition-all duration-300" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-black/60 group-hover/poster:via-black/15 transition-all duration-300" />
 
                         {/* Top Poster Badges */}
-                        <div className="relative z-10 p-3 sm:p-3.5 flex items-center justify-between gap-2">
+                        <div className="relative z-10 flex items-center justify-between gap-2">
                           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/65 backdrop-blur-xs text-white text-[11px] font-semibold border border-white/15 shadow-xs">
                             {isVertical916 ? (
                               <>
@@ -248,93 +234,70 @@ export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl, on
                             ) : (
                               <>
                                 <Film className="w-3 h-3 text-emerald-400" />
-                                <span>16:9 Widescreen 4K</span>
+                                <span>16:9 Widescreen</span>
                               </>
                             )}
                           </span>
 
-                          {/* Quick Launch Icon */}
-                          <span
-                            title="Watch in popup player"
-                            className="p-1.5 rounded-full bg-black/65 group-hover/poster:bg-black/90 backdrop-blur-xs text-white/90 group-hover/poster:text-white border border-white/15 transition-all shadow-xs"
-                          >
-                            <Maximize2 className="w-3.5 h-3.5" />
+                          <span className="inline-flex items-center justify-center p-1.5 rounded-full bg-black/65 text-white/80 group-hover/poster:text-white border border-white/15 transition-all shadow-xs">
+                            <ExternalLink className="w-3 h-3" />
                           </span>
                         </div>
 
-                        {/* Center Tactile Play Button Interface */}
-                        <div className="relative z-10 flex flex-col items-center justify-center p-4">
-                          <motion.div
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.94 }}
-                            className="relative flex items-center justify-center"
-                          >
+                        {/* Center Tactile Play Button Interface - Perfectly Centered in Thumbnail */}
+                        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none p-4">
+                          <div className="relative flex items-center justify-center">
                             {/* Glowing pulse ring */}
-                            <div className="absolute w-16 h-16 rounded-full bg-emerald-500/30 dark:bg-emerald-400/25 animate-ping opacity-60 pointer-events-none" />
+                            <div className="absolute w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-emerald-500/30 dark:bg-emerald-400/25 animate-ping opacity-60 pointer-events-none" />
 
-                            {/* Main Button Surface */}
-                            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-emerald-700/95 dark:bg-emerald-600 text-white flex items-center justify-center shadow-lg shadow-emerald-950/50 border border-emerald-400/40 group-hover/poster:bg-emerald-600 transition-colors">
+                            {/* Main Play Button Surface */}
+                            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-emerald-600/95 text-white flex items-center justify-center shadow-xl shadow-black/60 border border-white/30 group-hover/poster:bg-emerald-500 group-hover/poster:scale-105 transition-all">
                               <Play className="w-6 h-6 sm:w-7 sm:h-7 text-white fill-white translate-x-0.5" />
                             </div>
-                          </motion.div>
+                          </div>
 
-                          {/* Label */}
-                          <div className="mt-3 inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-black/75 backdrop-blur-xs text-white text-xs font-semibold border border-white/20 shadow-xs group-hover/poster:bg-emerald-950/80 group-hover/poster:border-emerald-400/30 transition-all">
-                            <span>Click to Watch Video</span>
+                          {/* Play Label: Clean "Play" */}
+                          <div className="mt-3 inline-flex items-center gap-1.5 px-4 py-1 rounded-full bg-black/75 backdrop-blur-xs text-white text-xs font-semibold border border-white/20 shadow-md group-hover/poster:bg-emerald-900/90 group-hover/poster:border-emerald-400/40 transition-all">
+                            <Play className="w-3 h-3 fill-current text-emerald-400" />
+                            <span>Play</span>
                           </div>
                         </div>
 
-                        {/* Bottom Info Strip */}
-                        <div className="relative z-10 p-3 sm:p-3.5 flex items-center justify-between text-white/90 text-xs">
-                          <div className="truncate max-w-[70%]">
-                            <span className="font-semibold block truncate drop-shadow-xs">
-                              {slot.tagline}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-1.5 text-[11px] font-mono text-slate-300 shrink-0 bg-black/50 px-2 py-0.5 rounded-md backdrop-blur-2xs border border-white/10">
-                            <Volume2 className="w-3 h-3 text-emerald-400" />
-                            <span>{slot.duration || 'HD Master'}</span>
-                          </div>
+                        {/* Bottom Info Strip - Tagline only (No timer/duration) */}
+                        <div className="relative z-10 flex items-center text-white/95 text-xs mt-auto">
+                          <span className="font-semibold block truncate drop-shadow-sm text-xs text-white/90">
+                            {slot.tagline}
+                          </span>
                         </div>
-                      </div>
+                      </a>
                     </div>
 
-                    {/* INTERACTIVE VIDEO ACTION BAR */}
+                    {/* ACTION BAR: DIRECT REDIRECT BUTTONS */}
                     <div className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-[#FAF9F6] dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs">
-                      {/* Left: Play Video Button (Opens Modal) */}
-                      <button
+                      {/* Play Button: Directly opens video in new tab */}
+                      <a
                         id={`play-video-btn-${slot.id}`}
-                        type="button"
-                        onClick={() => handleOpenPlayer(slot)}
-                        className="inline-flex items-center gap-1.5 py-1.5 px-3.5 rounded-lg bg-emerald-800 hover:bg-emerald-900 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white font-semibold transition-colors shadow-2xs cursor-pointer text-xs"
+                        href={driveTargetUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 py-2 px-4 rounded-lg bg-emerald-800 hover:bg-emerald-900 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white font-semibold transition-colors shadow-2xs text-xs group/btn cursor-pointer"
                       >
                         <Play className="w-3.5 h-3.5 fill-current" />
-                        <span>Play Video</span>
-                      </button>
+                        <span>Play</span>
+                        <ExternalLink className="w-3 h-3 ml-0.5 opacity-80 group-hover/btn:opacity-100 transition-opacity" />
+                      </a>
 
-                      {/* Right Actions: Popup Player & Direct Drive HD Vault */}
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() => handleOpenPlayer(slot)}
-                          className="inline-flex items-center gap-1 py-1.5 px-2.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors shadow-2xs font-medium text-[11px] cursor-pointer"
-                          title="Open full video player popup"
-                        >
-                          <Maximize2 className="w-3.5 h-3.5 text-slate-500 dark:text-slate-300" />
-                          <span>Popup</span>
-                        </button>
-
-                        <a
-                          href={driveTargetUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 py-1.5 px-2.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:text-emerald-800 dark:hover:text-emerald-400 transition-colors shadow-2xs font-medium text-[11px]"
-                          title="Open master high-resolution file in Google Drive"
-                        >
-                          <span>Drive HD</span>
-                          <ExternalLink className="w-3 h-3 text-slate-400 dark:text-slate-300" />
-                        </a>
-                      </div>
+                      {/* Direct Google Drive File Link */}
+                      <a
+                        href={driveTargetUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 py-2 px-3 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:text-emerald-800 dark:hover:text-emerald-400 transition-colors shadow-2xs font-medium text-xs"
+                        title="Open full master file in Google Drive in a new tab"
+                      >
+                        <span>Open in Drive</span>
+                        <ExternalLink className="w-3 h-3 text-slate-400 dark:text-slate-300" />
+                      </a>
                     </div>
                   </div>
 
@@ -437,12 +400,6 @@ export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl, on
           </div>
         </div>
       </div>
-
-      {/* Fallback Video Player Modal (if triggered internally) */}
-      <VideoModal
-        slot={internalModalSlot}
-        onClose={() => setInternalModalSlot(null)}
-      />
     </section>
   );
 };

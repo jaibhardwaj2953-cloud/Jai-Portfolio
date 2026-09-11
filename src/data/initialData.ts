@@ -254,8 +254,8 @@ export const INITIAL_SHOWCASE_SLOTS: ShowcaseVideoSlot[] = [
     aspectRatio: '16:9',
     duration: '0:45',
     posterUrl: 'https://lh3.googleusercontent.com/d/1KfgM-izxUJl94PRk32spsUD7J3YfK9Ak',
-    googleDriveUrl: 'https://drive.google.com/file/d/1KfgM-izxUJl94PRk32spsUD7J3YfK9Ak/preview',
-    customUrl: 'https://drive.google.com/file/d/1KfgM-izxUJl94PRk32spsUD7J3YfK9Ak/preview',
+    googleDriveUrl: 'https://drive.google.com/file/d/1KfgM-izxUJl94PRk32spsUD7J3YfK9Ak/view',
+    customUrl: 'https://drive.google.com/file/d/1KfgM-izxUJl94PRk32spsUD7J3YfK9Ak/view',
   },
   {
     id: 'defense-geopolitics',
@@ -271,8 +271,8 @@ export const INITIAL_SHOWCASE_SLOTS: ShowcaseVideoSlot[] = [
     duration: '0:40',
     posterUrl: 'https://lh3.googleusercontent.com/d/1YRuvidqsdgghJXWAzLhXJrtmrNoqBhrz',
     isViralReel: true,
-    googleDriveUrl: 'https://drive.google.com/file/d/1YRuvidqsdgghJXWAzLhXJrtmrNoqBhrz/preview',
-    customUrl: 'https://drive.google.com/file/d/1YRuvidqsdgghJXWAzLhXJrtmrNoqBhrz/preview',
+    googleDriveUrl: 'https://drive.google.com/file/d/1YRuvidqsdgghJXWAzLhXJrtmrNoqBhrz/view',
+    customUrl: 'https://drive.google.com/file/d/1YRuvidqsdgghJXWAzLhXJrtmrNoqBhrz/view',
   },
   {
     id: 'ad-video',
@@ -287,8 +287,8 @@ export const INITIAL_SHOWCASE_SLOTS: ShowcaseVideoSlot[] = [
     aspectRatio: '9:16',
     duration: '0:32',
     posterUrl: 'https://lh3.googleusercontent.com/d/1TzFqATO3KQ0enksCdOtC4JZ7AhuW2lir',
-    googleDriveUrl: 'https://drive.google.com/file/d/1TzFqATO3KQ0enksCdOtC4JZ7AhuW2lir/preview',
-    customUrl: 'https://drive.google.com/file/d/1TzFqATO3KQ0enksCdOtC4JZ7AhuW2lir/preview',
+    googleDriveUrl: 'https://drive.google.com/file/d/1TzFqATO3KQ0enksCdOtC4JZ7AhuW2lir/view',
+    customUrl: 'https://drive.google.com/file/d/1TzFqATO3KQ0enksCdOtC4JZ7AhuW2lir/view',
   },
 ];
 
