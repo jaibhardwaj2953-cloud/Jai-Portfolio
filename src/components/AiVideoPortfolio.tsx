@@ -13,7 +13,6 @@ import {
   RotateCcw,
   X,
   Volume2,
-  Tv,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShowcaseVideoSlot } from '../types';
@@ -56,12 +55,14 @@ export function parseGoogleDriveEmbedUrl(urlOrInput?: string): string | null {
 }
 
 /**
- * Generates reliable CDN poster URLs for Google Drive video files
+ * Generates reliable poster URLs with same-origin API proxy as primary
+ * and public Google Drive thumbnail endpoints as fallback
  */
-export function getDrivePosterUrl(fileId: string): { primary: string; fallback: string } {
+export function getDrivePosterUrl(fileId: string): { primary: string; fallback: string; direct: string } {
   return {
-    primary: `https://lh3.googleusercontent.com/d/${fileId}`,
-    fallback: `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`,
+    primary: `/api/poster/${fileId}`,
+    fallback: `https://lh3.googleusercontent.com/d/${fileId}=w1000`,
+    direct: `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`,
   };
 }
 
@@ -81,7 +82,7 @@ export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl }) 
   // Fallback to Google Drive iframe for a slot if native stream encounters an error
   const [useIframeFallback, setUseIframeFallback] = useState<Record<string, boolean>>({});
 
-  // Ref to active inline video element
+  // Ref to active inline video elements
   const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({});
 
   // Close theater modal on Escape key
@@ -95,27 +96,27 @@ export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl }) 
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const getSlotIcon = (id: string) => {
+  const getSlotIcon = (id: string, inDarkContext = false) => {
     switch (id) {
       case 'ai-cinematic':
-        return <Film className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />;
+        return <Film className={`w-4 h-4 ${inDarkContext ? 'text-emerald-400' : 'text-emerald-700 dark:text-emerald-400'}`} />;
       case 'defense-geopolitics':
-        return <Shield className="w-4 h-4 text-slate-800 dark:text-slate-300" />;
+        return <Shield className={`w-4 h-4 ${inDarkContext ? 'text-sky-400' : 'text-sky-700 dark:text-sky-400'}`} />;
       case 'ad-video':
-        return <Megaphone className="w-4 h-4 text-amber-700 dark:text-amber-400" />;
+        return <Megaphone className={`w-4 h-4 ${inDarkContext ? 'text-amber-400' : 'text-amber-700 dark:text-amber-400'}`} />;
       default:
-        return <Video className="w-4 h-4 text-slate-600 dark:text-slate-400" />;
+        return <Video className={`w-4 h-4 ${inDarkContext ? 'text-emerald-400' : 'text-slate-600 dark:text-slate-400'}`} />;
     }
   };
 
   const handleStartInlinePlay = (slotId: string) => {
     setActiveInlineSlot(slotId);
-    // Slight delay to ensure video element is mounted before attempting play
+    // Auto-trigger video play when activated
     setTimeout(() => {
       const vid = videoRefs.current[slotId];
       if (vid) {
         vid.play().catch(() => {
-          // If browser prevents unmuted autoplay, user can click play button on native controls
+          // If browser policy requires user gesture on muted video
         });
       }
     }, 50);
@@ -182,7 +183,7 @@ export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl }) 
             const driveTargetUrl = slot.googleDriveUrl || slot.customUrl || driveUrl;
             const isPlayingInline = activeInlineSlot === slot.id;
             const posterUrls = fileId ? getDrivePosterUrl(fileId) : null;
-            const effectivePoster = slot.posterUrl || posterUrls?.primary;
+            const effectivePoster = posterUrls?.primary || slot.posterUrl;
             const isUsingIframe = useIframeFallback[slot.id];
 
             return (
@@ -246,7 +247,7 @@ export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl }) 
                       }`}
                     >
                       {isPlayingInline ? (
-                        /* ACTIVE PLAYER */
+                        /* ACTIVE PLAYER (WITHOUT REDUNDANT POSTER ATTRIBUTE TO PREVENT MOBILE BROKEN IMAGE OVERLAY) */
                         <div className="relative w-full h-full flex items-center justify-center bg-black">
                           {isUsingIframe && gdriveEmbedUrl ? (
                             /* IFRAME FALLBACK PLAYER */
@@ -269,10 +270,9 @@ export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl }) 
                               playsInline
                               autoPlay
                               preload="auto"
-                              poster={effectivePoster}
                               className="w-full h-full object-contain bg-black"
                               onError={() => {
-                                // Gracefully fallback to Google Drive embed if native stream is restricted
+                                // Fallback to Google Drive embed if native stream is restricted
                                 setUseIframeFallback((prev) => ({ ...prev, [slot.id]: true }));
                               }}
                             >
@@ -325,8 +325,10 @@ export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl }) 
                               referrerPolicy="no-referrer"
                               onError={(e) => {
                                 const target = e.currentTarget;
-                                if (posterUrls && !target.src.includes('thumbnail')) {
-                                  target.src = posterUrls.fallback;
+                                if (posterUrls) {
+                                  if (!target.src.includes('thumbnail')) {
+                                    target.src = posterUrls.direct;
+                                  }
                                 }
                               }}
                             />
@@ -436,7 +438,7 @@ export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl }) 
                           className="inline-flex items-center gap-1 py-1.5 px-2.5 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors shadow-2xs font-medium text-[11px] cursor-pointer"
                           title="Open full theater lightbox"
                         >
-                          <Maximize2 className="w-3 h-3 text-slate-500 dark:text-slate-300" />
+                          <Maximize2 className="w-3.5 h-3.5 text-slate-500 dark:text-slate-300" />
                           <span>Theater</span>
                         </button>
 
@@ -584,7 +586,7 @@ export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl }) 
               <div className="flex items-center justify-between gap-3 px-5 py-3.5 border-b border-slate-800 bg-slate-900/90 text-white">
                 <div className="flex items-center gap-2.5 truncate">
                   <span className="p-1.5 rounded-md bg-slate-800 border border-slate-700">
-                    {getSlotIcon(theaterSlot.id)}
+                    {getSlotIcon(theaterSlot.id, true)}
                   </span>
                   <div className="truncate">
                     <h3 className="text-sm font-bold text-white truncate">
@@ -621,7 +623,7 @@ export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl }) 
                 </div>
               </div>
 
-              {/* Modal Video Player Container */}
+              {/* Modal Video Player Container - NO POSTER ATTRIBUTE to avoid Android Chrome broken image overlay */}
               <div
                 className={`w-full bg-black relative flex items-center justify-center ${
                   theaterSlot.aspectRatio === '9:16'
@@ -634,13 +636,8 @@ export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl }) 
                     controls
                     playsInline
                     autoPlay
+                    preload="auto"
                     className="w-full h-full object-contain bg-black"
-                    poster={
-                      theaterSlot.posterUrl ||
-                      getDrivePosterUrl(
-                        extractDriveFileId(theaterSlot.googleDriveUrl || theaterSlot.customUrl)!
-                      ).primary
-                    }
                   >
                     <source
                       src={`/api/video/${extractDriveFileId(
