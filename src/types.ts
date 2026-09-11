@@ -62,6 +62,8 @@ export interface ShowcaseVideoSlot {
   description: string;
   tags: string[];
   aspectRatio: '16:9' | '9:16';
+  posterUrl?: string;
+  duration?: string;
   uploadedVideo?: {
     name: string;
     size: number;
