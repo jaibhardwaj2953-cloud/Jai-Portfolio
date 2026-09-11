@@ -7,6 +7,7 @@ export const INITIAL_RESEARCH_PAPERS: ResearchPaper[] = [
     subtitle: 'Strategic Multilateralism & Gulf-South Asian Security Intersections',
     category: 'Geopolitics & Defence Treaties',
     readTime: '12 min read',
+    drivePreviewUrl: 'https://drive.google.com/file/d/1vV2S07TvQNJzPfidpzrhBvkp5uzlTgfK/preview',
     abstract:
       'An exhaustive analysis of the Makkah Joint Defence Framework, exploring security pacts across the Arabian Peninsula, mutual assistance protocols, intelligence sharing, and the evolving maritime security architecture intersecting the Red Sea and the Indian Ocean.',
     keyPoints: [
@@ -29,6 +30,7 @@ For South Asian strategists, the pact introduces key strategic dynamics:
     subtitle: 'Expansion Dynamics, Multilateral Hedging & The Evolving Global South Calculus',
     category: 'Global Power Architecture',
     readTime: '15 min read',
+    drivePreviewUrl: 'https://drive.google.com/file/d/1ZB617MpzZJPClqA8tJeDUyRWQt5OtmGL/preview',
     abstract:
       'A deep-dive investigation into the strategic recalibrations within the expanded BRICS+ bloc. Evaluates alternate financial messaging protocols, energy diplomacy corridors, and how India strategically balances its multipolar posture alongside Western defence partnerships.',
     keyPoints: [
@@ -51,6 +53,7 @@ Key Strategic Pillars Analyzed:
     subtitle: 'Valour Under Fire: Tactical Leadership & Counter-Terror Operational Monograph',
     category: 'Military History & Tactical Leadership',
     readTime: '10 min read',
+    drivePreviewUrl: 'https://drive.google.com/file/d/1eOfwo85ko71fI3knxUK-FGUSmTDgIVUy/preview',
     abstract:
       'A dedicated tactical and biographical monograph documenting the courage, combat leadership, and battlefield maneuvers of Major Rishabh Singh Sambhyal. Focuses on close-quarters combat doctrines, decision-making under intense enemy fire, and the enduring ethos of the Indian Armed Forces.',
     keyPoints: [

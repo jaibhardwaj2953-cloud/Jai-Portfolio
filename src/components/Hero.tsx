@@ -14,14 +14,14 @@ import { motion } from 'motion/react';
 import { ScrollReveal } from './ScrollReveal';
 
 interface HeroProps {
-  avatarUrl: string | null;
+  avatarUrl?: string | null;
   driveUrl: string;
   instagramUrl: string;
   linkedinUrl?: string;
 }
 
 export const Hero: React.FC<HeroProps> = ({
-  avatarUrl,
+  avatarUrl = 'https://lh3.googleusercontent.com/d/1HI-ciN7HbTqUG24JX1qyt2e0MF4rk7v9',
   driveUrl,
   instagramUrl,
   linkedinUrl = 'https://www.linkedin.com/in/jai-bhardwaj-470919108?utm_source=share_via&utm_content=profile&utm_medium=member_android',
@@ -217,36 +217,29 @@ export const Hero: React.FC<HeroProps> = ({
                 <div className="absolute -inset-1.5 bg-gradient-to-tr from-slate-200 via-emerald-100 to-slate-300 dark:from-slate-800 dark:via-emerald-950/40 dark:to-slate-700 rounded-full blur-xs opacity-75 group-hover:opacity-100 transition-opacity" />
                 
                 {/* Circular Avatar Container */}
-                <div
+                <a
                   id="hero-circular-avatar-container"
-                  className="relative w-52 h-52 sm:w-64 sm:h-64 rounded-full p-2 bg-white dark:bg-slate-900 shadow-md border border-slate-200/80 dark:border-slate-800 flex items-center justify-center overflow-hidden"
+                  href="https://drive.google.com/file/d/1HI-ciN7HbTqUG24JX1qyt2e0MF4rk7v9/preview"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="View AI Portrait on Google Drive"
+                  className="relative block w-52 h-52 sm:w-64 sm:h-64 rounded-full p-2 bg-white dark:bg-slate-900 shadow-md border border-slate-200/80 dark:border-slate-800 overflow-hidden cursor-pointer"
                 >
-                  {avatarUrl ? (
-                    <img
-                      id="hero-display-picture"
-                      src={avatarUrl}
-                      alt="Jai Bhardwaj"
-                      className="w-full h-full object-cover rounded-full transition-transform duration-300 group-hover:scale-105"
-                      referrerPolicy="no-referrer"
-                    />
-                  ) : (
-                    /* Editorial Placeholder Avatar */
-                    <div className="w-full h-full rounded-full bg-gradient-to-b from-slate-100 to-slate-200/80 dark:from-slate-800 dark:to-slate-900 flex flex-col items-center justify-center p-4 text-center border border-slate-200 dark:border-slate-700 relative overflow-hidden">
-                      {/* Stylized background silhouette / monogram */}
-                      <div className="w-20 h-20 rounded-full bg-slate-800 dark:bg-slate-700 text-white flex items-center justify-center font-serif text-3xl font-semibold mb-2 shadow-xs">
-                        JB
-                      </div>
-                      <div className="text-xs font-semibold text-slate-700 dark:text-slate-200">AI Display Picture</div>
-                      <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Jai Bhardwaj</div>
-                      
-                      {/* Micro badge */}
-                      <div className="absolute bottom-3 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100/90 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 text-[10px] font-medium border border-emerald-200 dark:border-emerald-800">
-                        <Sparkles className="w-2.5 h-2.5 text-emerald-700 dark:text-emerald-400" />
-                        <span>AI Avatar Frame</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                  <img
+                    id="hero-display-picture"
+                    src={avatarUrl || 'https://lh3.googleusercontent.com/d/1HI-ciN7HbTqUG24JX1qyt2e0MF4rk7v9'}
+                    alt="Jai Bhardwaj - AI Display Picture"
+                    className="w-full h-full object-cover rounded-full transition-transform duration-300 group-hover:scale-105"
+                    referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      // Fallback to high-res drive thumbnail if direct CDN url faces any restriction
+                      const target = e.currentTarget;
+                      if (!target.src.includes('thumbnail')) {
+                        target.src = 'https://drive.google.com/thumbnail?id=1HI-ciN7HbTqUG24JX1qyt2e0MF4rk7v9&sz=w1000';
+                      }
+                    }}
+                  />
+                </a>
 
                 {/* Status pill beneath avatar */}
                 <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 text-xs font-medium border border-slate-200 dark:border-slate-700 shadow-xs">

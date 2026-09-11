@@ -6,6 +6,7 @@ import {
   Clock,
   FileCheck,
   Layers,
+  ExternalLink,
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { ResearchPaper } from '../types';
@@ -153,16 +154,30 @@ export const ResearchSection: React.FC<ResearchSectionProps> = ({
                         <Eye className="w-3.5 h-3.5" />
                         <span>Read Analysis</span>
                       </motion.button>
-                      <motion.button
-                        type="button"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => handleDownload(paper)}
-                        className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200/80 dark:hover:bg-slate-700 transition-colors border border-slate-200 dark:border-slate-700 cursor-pointer"
-                      >
-                        <Download className="w-3.5 h-3.5" />
-                        <span>Download Brief</span>
-                      </motion.button>
+                      {paper.drivePreviewUrl ? (
+                        <motion.a
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.95 }}
+                          href={paper.drivePreviewUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-xs font-medium bg-emerald-50 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors border border-emerald-200/80 dark:border-emerald-800/80 shadow-2xs"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
+                          <span>Drive Doc</span>
+                        </motion.a>
+                      ) : (
+                        <motion.button
+                          type="button"
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => handleDownload(paper)}
+                          className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-lg text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200/80 dark:hover:bg-slate-700 transition-colors border border-slate-200 dark:border-slate-700 cursor-pointer"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          <span>Download Brief</span>
+                        </motion.button>
+                      )}
                     </div>
                   </div>
 

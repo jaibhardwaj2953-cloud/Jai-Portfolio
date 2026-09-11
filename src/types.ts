@@ -7,6 +7,7 @@ export interface ResearchPaper {
   abstract: string;
   keyPoints: string[];
   initialExcerpt: string;
+  drivePreviewUrl?: string;
   uploadedFile?: {
     name: string;
     size: number;

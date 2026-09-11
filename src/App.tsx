@@ -11,22 +11,17 @@ import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { Footer } from './components/Footer';
 import { INITIAL_RESEARCH_PAPERS } from './data/initialData';
 import { ResearchPaper } from './types';
-import { getDocument } from './utils/storage';
 
 const DRIVE_URL = 'https://drive.google.com/drive/folders/131fmioulZcwEphjt21zaJiTPZ5vcoawi';
 const INSTAGRAM_URL = 'https://www.instagram.com/defence.rev/';
 const LINKEDIN_URL = 'https://www.linkedin.com/in/jai-bhardwaj-470919108?utm_source=share_via&utm_content=profile&utm_medium=member_android';
+const AI_AVATAR_IMAGE_URL = 'https://lh3.googleusercontent.com/d/1HI-ciN7HbTqUG24JX1qyt2e0MF4rk7v9';
 
 export default function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     return (localStorage.getItem('jai_portfolio_theme') as 'light' | 'dark') || 'light';
   });
 
-  const [avatarUrl] = useState<string | null>(() => {
-    return localStorage.getItem('jai_avatar_url') || null;
-  });
-
-  const [papers, setPapers] = useState<ResearchPaper[]>(INITIAL_RESEARCH_PAPERS);
   const [selectedPaperForReader, setSelectedPaperForReader] = useState<ResearchPaper | null>(null);
 
   // Sync dark class on document root
@@ -42,37 +37,6 @@ export default function App() {
   const toggleTheme = () => {
     setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
   };
-
-  // Load any previously archived research documents from IndexedDB on startup
-  useEffect(() => {
-    async function loadSavedDocuments() {
-      try {
-        const updatedPapers = await Promise.all(
-          INITIAL_RESEARCH_PAPERS.map(async (paper) => {
-            const saved = await getDocument(paper.id);
-            if (saved) {
-              return {
-                ...paper,
-                uploadedFile: {
-                  name: saved.name,
-                  size: saved.size,
-                  type: saved.type,
-                  uploadedAt: saved.uploadedAt,
-                  dataUrl: saved.dataUrl,
-                },
-              };
-            }
-            return paper;
-          })
-        );
-        setPapers(updatedPapers);
-      } catch (err) {
-        console.error('Failed to load documents from IndexedDB:', err);
-      }
-    }
-
-    loadSavedDocuments();
-  }, []);
 
   return (
     <div className="min-h-screen bg-[#FAF9F6] dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col font-sans selection:bg-emerald-100 dark:selection:bg-emerald-950 selection:text-slate-900 dark:selection:text-emerald-300 transition-colors duration-200">
@@ -90,7 +54,7 @@ export default function App() {
       <main className="flex-1">
         {/* Intro & Hero Header */}
         <Hero
-          avatarUrl={avatarUrl}
+          avatarUrl={AI_AVATAR_IMAGE_URL}
           driveUrl={DRIVE_URL}
           instagramUrl={INSTAGRAM_URL}
           linkedinUrl={LINKEDIN_URL}
@@ -106,7 +70,7 @@ export default function App() {
 
         {/* 3. Selected Research */}
         <ResearchSection
-          papers={papers}
+          papers={INITIAL_RESEARCH_PAPERS}
           onOpenDocumentReader={(paper) => setSelectedPaperForReader(paper)}
         />
 

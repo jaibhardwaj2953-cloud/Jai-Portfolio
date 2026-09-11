@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { X, FileText, Download, Clock, CheckCircle2 } from 'lucide-react';
+import { X, FileText, Download, Clock, CheckCircle2, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ResearchPaper } from '../types';
 import { formatFileSize } from '../utils/storage';
@@ -100,8 +100,35 @@ export const DocumentModal: React.FC<DocumentModalProps> = ({ paper, onClose }) 
           {/* Modal Body */}
           <div className="p-6 sm:p-8 overflow-y-auto flex-1 space-y-6 text-slate-700 dark:text-slate-300 text-sm sm:text-base leading-relaxed">
             
-            {/* Uploaded File Status Badge */}
-            {paper.uploadedFile ? (
+            {/* Uploaded / Official Drive File Status Badge */}
+            {paper.drivePreviewUrl ? (
+              <div className="p-4 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 flex items-center justify-center shrink-0">
+                    <FileText className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-slate-900 dark:text-white text-xs sm:text-sm">
+                      Official Research Document (Google Drive)
+                    </div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400">
+                      Author: Jai Bhardwaj • Verified Research Monograph
+                    </div>
+                  </div>
+                </div>
+                <motion.a
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.95 }}
+                  href={paper.drivePreviewUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg bg-emerald-800 dark:bg-emerald-700 text-white text-xs font-medium hover:bg-emerald-900 dark:hover:bg-emerald-600 transition-colors shrink-0 shadow-2xs"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>Open in Google Drive</span>
+                </motion.a>
+              </div>
+            ) : paper.uploadedFile ? (
               <div className="p-4 rounded-xl bg-emerald-50/60 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-lg bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 flex items-center justify-center shrink-0">
@@ -181,6 +208,35 @@ export const DocumentModal: React.FC<DocumentModalProps> = ({ paper, onClose }) 
               </pre>
             </div>
 
+            {/* Official Google Drive Document Embedded Preview */}
+            {paper.drivePreviewUrl && (
+              <div className="pt-2">
+                <div className="flex items-center justify-between mb-2.5">
+                  <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                    <FileText className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                    <span>Official Document View</span>
+                  </h4>
+                  <a
+                    href={paper.drivePreviewUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-emerald-800 dark:text-emerald-400 hover:underline font-semibold inline-flex items-center gap-1"
+                  >
+                    <span>Open In Full Drive Tab</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+                <div className="w-full h-96 sm:h-[480px] rounded-xl overflow-hidden border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-900 shadow-inner">
+                  <iframe
+                    src={paper.drivePreviewUrl}
+                    title={paper.title}
+                    className="w-full h-full border-0"
+                    allow="autoplay"
+                  />
+                </div>
+              </div>
+            )}
+
             {/* If PDF preview is available via dataUrl */}
             {isPdf && paper.uploadedFile?.dataUrl && (
               <div className="pt-2">
@@ -205,6 +261,19 @@ export const DocumentModal: React.FC<DocumentModalProps> = ({ paper, onClose }) 
               Author: <span className="font-semibold text-slate-700 dark:text-slate-200">Jai Bhardwaj</span> • Geopolitics &amp; Defence Strategy
             </div>
             <div className="flex items-center gap-3">
+              {paper.drivePreviewUrl && (
+                <motion.a
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.95 }}
+                  href={paper.drivePreviewUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-800 dark:bg-emerald-700 text-white text-xs font-medium hover:bg-emerald-900 dark:hover:bg-emerald-600 transition-colors shadow-2xs"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>Google Drive Doc</span>
+                </motion.a>
+              )}
               <motion.button
                 type="button"
                 whileHover={{ scale: 1.02 }}
@@ -213,7 +282,7 @@ export const DocumentModal: React.FC<DocumentModalProps> = ({ paper, onClose }) 
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-slate-900 dark:bg-slate-800 text-white text-xs font-medium hover:bg-slate-800 dark:hover:bg-slate-700 transition-colors shadow-2xs cursor-pointer"
               >
                 <Download className="w-3.5 h-3.5" />
-                <span>Download File</span>
+                <span>Download Brief</span>
               </motion.button>
               <motion.button
                 type="button"
