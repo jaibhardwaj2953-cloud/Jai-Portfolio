@@ -13,23 +13,11 @@ import { INITIAL_RESEARCH_PAPERS } from './data/initialData';
 import { ResearchPaper } from './types';
 import { getDocument } from './utils/storage';
 
-const DEFAULT_DRIVE_URL = 'https://drive.google.com/drive/folders/131fmioulZcwEphjt21zaJiTPZ5vcoawi';
-const DEFAULT_INSTAGRAM_URL = 'https://www.instagram.com/defence.rev/';
-const DEFAULT_LINKEDIN_URL = 'https://www.linkedin.com/in/jai-bhardwaj/';
+const DRIVE_URL = 'https://drive.google.com/drive/folders/131fmioulZcwEphjt21zaJiTPZ5vcoawi';
+const INSTAGRAM_URL = 'https://www.instagram.com/defence.rev/';
+const LINKEDIN_URL = 'https://www.linkedin.com/in/jai-bhardwaj-470919108?utm_source=share_via&utm_content=profile&utm_medium=member_android';
 
 export default function App() {
-  const [driveUrl] = useState<string>(() => {
-    return DEFAULT_DRIVE_URL;
-  });
-
-  const [instagramUrl] = useState<string>(() => {
-    return DEFAULT_INSTAGRAM_URL;
-  });
-
-  const [linkedinUrl] = useState<string>(() => {
-    return DEFAULT_LINKEDIN_URL;
-  });
-
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     return (localStorage.getItem('jai_portfolio_theme') as 'light' | 'dark') || 'light';
   });
@@ -91,9 +79,9 @@ export default function App() {
       
       {/* Navigation */}
       <Navbar
-        driveUrl={driveUrl}
-        instagramUrl={instagramUrl}
-        linkedinUrl={linkedinUrl}
+        driveUrl={DRIVE_URL}
+        instagramUrl={INSTAGRAM_URL}
+        linkedinUrl={LINKEDIN_URL}
         theme={theme}
         onToggleTheme={toggleTheme}
       />
@@ -103,9 +91,9 @@ export default function App() {
         {/* Intro & Hero Header */}
         <Hero
           avatarUrl={avatarUrl}
-          driveUrl={driveUrl}
-          instagramUrl={instagramUrl}
-          linkedinUrl={linkedinUrl}
+          driveUrl={DRIVE_URL}
+          instagramUrl={INSTAGRAM_URL}
+          linkedinUrl={LINKEDIN_URL}
         />
 
         {/* 1. Profile & Focus (including Skills & Expertise with Generative AI stack) */}
@@ -113,7 +101,7 @@ export default function App() {
 
         {/* 2. Top Work Video Showcases (Highlighted on top right after Profile) */}
         <AiVideoPortfolio
-          driveUrl={driveUrl}
+          driveUrl={DRIVE_URL}
         />
 
         {/* 3. Selected Research */}
@@ -137,9 +125,9 @@ export default function App() {
 
       {/* Footer */}
       <Footer
-        driveUrl={driveUrl}
-        instagramUrl={instagramUrl}
-        linkedinUrl={linkedinUrl}
+        driveUrl={DRIVE_URL}
+        instagramUrl={INSTAGRAM_URL}
+        linkedinUrl={LINKEDIN_URL}
         theme={theme}
         onToggleTheme={toggleTheme}
       />

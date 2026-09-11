@@ -249,8 +249,8 @@ export const INITIAL_SHOWCASE_SLOTS: ShowcaseVideoSlot[] = [
       "Epic generative cinematic recreation depicting Angad's unmovable stride and peace embassy in Ravana's golden Lanka court. Engineered with multi-model visual synthesis, photorealistic atmospheric lighting, and neural Hindi voice direction.",
     tags: ['Ramayana Epic', "Angad's Stride", 'Kling AI / Midjourney', 'ElevenLabs Hindi', 'Google Flow Pipeline'],
     aspectRatio: '16:9',
-    googleDriveUrl: '',
-    customUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    googleDriveUrl: 'https://drive.google.com/file/d/1KfgM-izxUJl94PRk32spsUD7J3YfK9Ak/preview',
+    customUrl: 'https://drive.google.com/file/d/1KfgM-izxUJl94PRk32spsUD7J3YfK9Ak/preview',
   },
   {
     id: 'defense-geopolitics',
@@ -264,8 +264,8 @@ export const INITIAL_SHOWCASE_SLOTS: ShowcaseVideoSlot[] = [
     tags: ['Geopolitics', '3D Terrain Kinetics', 'Radar Envelopes', 'Defence Strategy', '4.7M+ Viral Reach'],
     aspectRatio: '9:16',
     isViralReel: true,
-    googleDriveUrl: '',
-    customUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+    googleDriveUrl: 'https://drive.google.com/file/d/1Lj-FqIFfvgwvG2G40hpMB2atxT1YlMS3/preview',
+    customUrl: 'https://drive.google.com/file/d/1Lj-FqIFfvgwvG2G40hpMB2atxT1YlMS3/preview',
   },
   {
     id: 'ad-video',
@@ -278,8 +278,8 @@ export const INITIAL_SHOWCASE_SLOTS: ShowcaseVideoSlot[] = [
       'Fast-paced commercial video engineered with high-impact kinetic typography, product visualization, and multi-million impression retention hooks.',
     tags: ['Commercial Ad', 'Brand Marketing', 'Retention Pacing', 'Product AI Video'],
     aspectRatio: '9:16',
-    googleDriveUrl: '',
-    customUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+    googleDriveUrl: 'https://drive.google.com/file/d/1TzFqATO3KQ0enksCdOtC4JZ7AhuW2lir/preview',
+    customUrl: 'https://drive.google.com/file/d/1TzFqATO3KQ0enksCdOtC4JZ7AhuW2lir/preview',
   },
 ];
 

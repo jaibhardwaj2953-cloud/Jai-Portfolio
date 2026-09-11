@@ -28,7 +28,7 @@ interface FooterProps {
 export const Footer: React.FC<FooterProps> = ({
   driveUrl,
   instagramUrl,
-  linkedinUrl = 'https://www.linkedin.com/in/jai-bhardwaj/',
+  linkedinUrl = 'https://www.linkedin.com/in/jai-bhardwaj-470919108?utm_source=share_via&utm_content=profile&utm_medium=member_android',
   theme = 'light',
   onToggleTheme,
 }) => {

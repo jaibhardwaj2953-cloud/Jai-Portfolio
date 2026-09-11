@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   HardDrive,
   ExternalLink,
@@ -55,29 +55,11 @@ interface AiVideoPortfolioProps {
 }
 
 export const AiVideoPortfolio: React.FC<AiVideoPortfolioProps> = ({ driveUrl }) => {
-  // Helper to persist Drive URL per slot if user saved one
-  const getSlotStorageKey = (slotId: string): string => {
-    if (slotId === 'ai-cinematic') return 'jai_cinematic_gdrive_url';
-    if (slotId === 'defense-geopolitics') return 'jai_defense_gdrive_url';
-    return 'jai_ad_gdrive_url';
-  };
-
   // 3 Featured Video Showcase Slots:
   // 1. AI Cinematic (16:9 Landscape) - features locked-in Google Drive embed player
   // 2. Defense & Geopolitics (9:16 Vertical Reel) - features locked-in Google Drive embed player
   // 3. Commercial & AI Ad Video (9:16 Vertical Reel) - features locked-in Google Drive embed player
-  const [slots] = useState<ShowcaseVideoSlot[]>(() => {
-    return INITIAL_SHOWCASE_SLOTS.map((slot) => {
-      const savedDriveUrl = localStorage.getItem(getSlotStorageKey(slot.id));
-      if (savedDriveUrl) {
-        return {
-          ...slot,
-          googleDriveUrl: savedDriveUrl,
-        };
-      }
-      return slot;
-    });
-  });
+  const slots: ShowcaseVideoSlot[] = INITIAL_SHOWCASE_SLOTS;
 
   const getSlotIcon = (id: string) => {
     switch (id) {
